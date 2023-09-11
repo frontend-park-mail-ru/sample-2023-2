@@ -1,0 +1,15 @@
+#header {
+    background-color: blue;
+    color: #ffffff;
+    padding: 16px;
+    font-size: 21px;
+    font-family: Arial, sans-serif;
+}
+
+.header-item {
+    display: inline-block;
+}
+
+.awesome-link {
+    color: #007eff;
+}
