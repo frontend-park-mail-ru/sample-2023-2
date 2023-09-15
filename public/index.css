@@ -1,15 +1,45 @@
-#header {
-    background-color: blue;
-    color: #ffffff;
-    padding: 16px;
-    font-size: 21px;
-    font-family: Arial, sans-serif;
+body {
+    font-family: Helvetica, Arial, sans-serif;
 }
 
-.header-item {
-    display: inline-block;
+
+.active {
+    font-weight: bold;
 }
 
-.awesome-link {
-    color: #007eff;
+#root {
+    display: grid;
+
+    grid-template-areas:
+        "header header"
+        "menu content";
+
+    grid-template-rows: 100px 1fr;
+    grid-template-columns: min-content 1fr;
 }
+
+aside {
+    grid-area: menu;
+    font-size: 40px;
+    padding-left: 20px;
+}
+
+main {
+    grid-area: content;
+    padding: 0 40px 40px;
+}
+
+a {
+    display: block;
+    color: #333333;
+    text-decoration: none;
+}
+
+input {
+    display: block;
+    height: 60px;
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+
