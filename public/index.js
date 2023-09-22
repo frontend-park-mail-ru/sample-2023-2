@@ -1,5 +1,4 @@
-console.log('keklol');
-
+import {Menu, MENU_RENDER_TYPES} from './components/Menu/Menu.js';
 
 const rootElement = document.querySelector('#root');
 const menuElement = document.createElement('aside');
@@ -30,35 +29,19 @@ const config = {
             href: '/profile',
             name: 'Профиль',
             render: renderProfile,
-        }
+        },
+        // // Вектор атаки XSS. Работает, если делать рендер через строку. Для ознакомления!
+        // danger: {
+        //     name: `Опасность <iframe src="https://example.com" onload="alert('Упс, сайт взломали!')"></iframe>`,
+        //     href: '/',
+        //     render: () => {},
+        // }
     }
 };
 
-const state = {
-    activeMenu: null,
-    menuElements: {},
-}
-
-
-function ajax(method, url, body = null, callback) {
-    const xhr = new XMLHttpRequest();
-    xhr.open(method, url, true);
-    xhr.withCredentials = true;
-
-    xhr.addEventListener('readystatechange', function () {
-        if (xhr.readyState !== XMLHttpRequest.DONE) return;
-
-        callback(xhr.status, xhr.responseText);
-    });
-
-    if (body) {
-        xhr.setRequestHeader('Content-type', 'application/json; charset=utf8');
-        xhr.send(JSON.stringify(body));
-        return;
-    }
-
-    xhr.send();
-}
+// Вместо renderingMenu
+const menu = new Menu(menuElement, config.menu);
+menu.render(MENU_RENDER_TYPES.DOM);
 
 function createInput(type, text, name) {
     const input = document.createElement('input');
@@ -89,19 +72,19 @@ function renderLogin() {
         const email = emailInput.value.trim();
         const password = passwordInput.value;
 
-        ajax(
-            'POST',
-            '/login',
-            {password, email},
-            (status) => {
+        // Используем наш модуль
+        Ajax.post({
+            url: '/login',
+            body: {password, email},
+            callback: (status) => {
                 if (status === 200) {
-                    goToPage(state.menuElements.profile);
+                    goToPage(menu.state.menuElements.profile);
                     return;
                 }
 
                 alert('НЕВЕРНЫЙ ЕМЕЙЛ ИЛИ ПАРОЛЬ');
             }
-        )
+        })
     });
 
     return form;
@@ -129,11 +112,10 @@ function renderSignup() {
 function renderFeed() {
     const feedElement = document.createElement('div');
 
-    ajax(
-        'GET',
-        '/feed',
-        null,
-        (status, responseString) => {
+    // Используем наш модуль
+    Ajax.get({
+        url: '/feed',
+        callback: (status, responseString) => {
             let isAuthorized = false;
 
             if (status === 200) {
@@ -142,7 +124,7 @@ function renderFeed() {
 
             if (!isAuthorized) {
                 alert('Нет авторизации!');
-                goToPage(state.menuElements.login);
+                goToPage(menu.state.menuElements.login);
                 return;
             }
 
@@ -157,7 +139,7 @@ function renderFeed() {
                 });
             }
         }
-    );
+    })
 
     return feedElement;
 }
@@ -165,18 +147,16 @@ function renderFeed() {
 function renderProfile() {
     const profileElement = document.createElement('div');
 
-
-    ajax(
-        'GET',
-        '/me',
-        null,
-        (status, responseString) => {
+    // Используем наш модуль
+    Ajax.get({
+        url: '/me',
+        callback: (status, responseString) => {
             const isAuthorized = status === 200;
 
 
             if (!isAuthorized) {
                 alert('АХТУНГ! НЕТ АВТОРИЗАЦИИ');
-                goToPage(state.menuElements.login);
+                goToPage(menu.state.menuElements.login);
 
                 return;
             }
@@ -196,42 +176,19 @@ function renderProfile() {
                 });
             }
         }
-    );
-
+    })
 
     return profileElement;
 }
 
-function renderingMenu() {
-    Object
-        .entries(config.menu)
-        .map(([key, { href, name }], index) => {
-            const menuElement = document.createElement('a');
-            menuElement.href = href;
-            menuElement.textContent = name;
-            menuElement.dataset.section = key;
-
-            if (index === 0) {
-                menuElement.classList.add('active');
-                state.activeMenu = menuElement;
-            }
-
-            state.menuElements[key] = menuElement;
-
-            return menuElement;
-        })
-        .forEach(element => menuElement.appendChild(element))
-    ;
-}
-
 function goToPage(menuLink) {
-    if (menuLink === state.activeMenu) {
+    if (menuLink === menu.state.activeMenu) {
         return;
     }
 
-    state.activeMenu.classList.remove('active');
+    menu.state.activeMenu.classList.remove('active');
     menuLink.classList.add('active');
-    state.activeMenu = menuLink;
+    menu.state.activeMenu = menuLink;
 
     pageElement.innerHTML = '';
 
@@ -240,7 +197,6 @@ function goToPage(menuLink) {
     pageElement.appendChild(el);
 }
 
-renderingMenu();
 const feedElement = renderFeed();
 pageElement.appendChild(feedElement);
 
