@@ -1,3 +1,6 @@
+@import './components/Menu/Menu.css';
+/* Импорты работают в CSS со своим синтаксисом */
+
 body {
     font-family: Helvetica, Arial, sans-serif;
 }
