@@ -1,5 +1,15 @@
 import {Menu, MENU_RENDER_TYPES} from './components/Menu/Menu.js';
 
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js',{scope: '/'})
+        .then((reg) => {
+            console.log('sw registered', reg);
+        })
+        .catch((e) => {
+            console.error(e);
+        });
+}
+
 const rootElement = document.querySelector('#root');
 const menuElement = document.createElement('aside');
 const pageElement = document.createElement('main');
